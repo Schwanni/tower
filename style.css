@@ -1,0 +1,143 @@
+:root {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #adadad;
+  margin: 0 2rem;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-items: center;
+}
+
+main h2 {
+  font-size: xx-large;
+}
+
+.loginform {
+  padding: 0.3rem;
+  border-radius: 10px;
+  height: 2rem;
+  font-size: xx-large;
+}
+
+.loginbtn {
+  padding: 0.3rem 1rem;
+  border-radius: 15%;
+  color: white;
+  font-weight: 600;
+  background-color: rgb(62, 68, 66);
+  font-size: xx-large;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  height: 20rem;
+  background-color: #adadad;
+  z-index: 10;
+  font-size: x-large;
+}
+
+.navbar {
+  display: grid;
+}
+
+nav ul {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  grid-column-gap: 0.5rem;
+  grid-row-gap: 0.2rem;
+  list-style: none;
+  text-decoration: none;
+  align-items: center;
+}
+
+nav ul li {
+  text-decoration: none;
+}
+
+nav ul li a {
+  color: black;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+legend {
+  font-weight: 800;
+}
+
+fieldset {
+  margin: 2rem 0;
+  scroll-margin-top: 20rem; /* gleiche Höhe wie deine Navbar */
+  font-size: xx-large;
+  border: 3px solid white;
+}
+
+fieldset label {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(1, 1fr);
+  grid-column-gap: 0.2rem;
+  grid-row-gap: 0.1rem;
+  justify-items: center;
+}
+
+fieldset label select {
+  padding: 0.2rem;
+  width: 100%;
+  border-radius: 2px;
+  font-size: xx-large;
+}
+
+fieldset label span {
+  font-weight: 700;
+}
+
+.cost {
+  margin-bottom: 1rem;
+}
+
+.stones {
+  color: red;
+}
+
+.save-btn,
+.logout-btn {
+  padding: 0.3rem 1rem;
+  border-radius: 15%;
+  color: white;
+  font-weight: 600;
+  background-color: rgb(28, 114, 85);
+  font-size: x-large;
+}
+
+.questionBtn {
+  width: 5rem;
+  height: 5rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  font-size: x-large;
+  font-weight: 900;
+  border: 5px solid black;
+  border-radius: 100%;
+}
+
+.hideQuestion {
+  display: none;
+}
+
+footer {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 1rem;
+}

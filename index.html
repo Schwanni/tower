@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login Tower UW Calculator</title>
+    <link
+      rel="stylesheet"
+      href="style.css"
+    />
+  </head>
+  <body>
+    <main>
+      <h2>Login mit ID</h2>
+      <form id="loginForm">
+        <input
+          type="text"
+          id="userId"
+          name="userId"
+          class="loginform"
+          placeholder="Deine ID"
+          required
+        />
+        <button
+          type="submit"
+          class="loginbtn"
+        >
+          Login
+        </button>
+      </form>
+      <img
+        src="id.JPG"
+        alt="ID"
+        class="hideQuestion"
+        id="idPicture"
+      />
+      <button
+        id="questionBtn"
+        class="questionBtn"
+      >
+        ?
+      </button>
+    </main>
+    <script>
+      // LocalStorage prüfen und ID automatisch eintragen
+      document.addEventListener("DOMContentLoaded", () => {
+        const savedId = localStorage.getItem("userId");
+        if (savedId) {
+          document.getElementById("userId").value = savedId;
+        }
+      });
+
+      // Formular absenden per Fetch
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const userId = document.getElementById("userId").value;
+
+          // ID in LocalStorage speichern
+          localStorage.setItem("userId", userId);
+
+          const response = await fetch("login.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "userId=" + encodeURIComponent(userId),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            window.location.href = "dashboard.php";
+          } else {
+            alert(result.message);
+          }
+        });
+
+      // ? Button onclick
+
+      const questionBtn = document.getElementById("questionBtn");
+      const idPicture = document.getElementById("idPicture");
+      questionBtn.addEventListener("click", () => {
+        if (idPicture.classList.toggle("hideQuestion"));
+      });
+    </script>
+  </body>
+</html>
