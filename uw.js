@@ -38,20 +38,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 
     // Research-Level für Golden Tower (initial aus Nutzerdaten)
-    let researchDurationLevel = 0;
+    let researchDurationLevel_GT = 0;
     let researchMultiplierLevel = 0;
+    let researchDurationLevel_CF = 0;
 
-    const researchDurationUser = userData.find(
+    const researchDurationUser_GT = userData.find(
       (u) => u.weapon === "golden_tower" && u.property === "research_duration"
     );
     const researchMultiplierUser = userData.find(
       (u) => u.weapon === "golden_tower" && u.property === "research_multiplier"
     );
+    const researchDurationUser_CF = userData.find(
+      (u) => u.weapon === "chrono_field" && u.property === "research_duration"
+    );
 
-    if (researchDurationUser)
-      researchDurationLevel = parseInt(researchDurationUser.level);
+    if (researchDurationUser_GT)
+      researchDurationLevel_GT = parseInt(researchDurationUser_GT.level);
     if (researchMultiplierUser)
       researchMultiplierLevel = parseInt(researchMultiplierUser.level);
+    if (researchDurationUser_CF)
+      researchDurationLevel_CF = parseInt(researchDurationUser_CF.level);
 
     // Hilfsfunktionen, um Research-Werte auszulesen (robust gegenüber String/Number)
     const getResearchBonus = (property, level) => {
@@ -62,6 +68,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           d.weapon === "golden_tower" &&
           d.property === property &&
           Number(d.level) === lvl
+      );
+    };
+
+    const getResearchSecondsCF = () => {
+      const entry = allData.find(
+        (d) =>
+          d.weapon === "chrono_field" &&
+          d.property === "research_duration" &&
+          Number(d.level) === researchDurationLevel_CF
+      );
+      if (!entry || !entry.value) return 0;
+      return (
+        parseFloat(String(entry.value).replace("+", "").replace("s", "")) || 0
       );
     };
 
@@ -151,6 +170,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
           }
 
+          if (weapon === "chrono_field" && prop === "research_duration") {
+            researchDurationLevel_CF = parseInt(selectSingle.value);
+            selectSingle.addEventListener("change", () => {
+              researchDurationLevel_CF = parseInt(selectSingle.value);
+              updateChronoFieldDisplay();
+            });
+          }
+
           label.appendChild(selectSingle);
           fieldset.appendChild(label);
           return;
@@ -236,6 +263,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // nach dem Aufbau der UI einmal initial anwenden
     updateGoldenTowerDisplay();
+    updateChronoFieldDisplay();
 
     // === Speichern ===
     document.getElementById("save-btn").addEventListener("click", async () => {
@@ -366,6 +394,33 @@ document.addEventListener("DOMContentLoaded", async () => {
                 opt.dataset.stones || "0"
               } Stones)`;
             }
+          });
+        });
+      });
+    }
+
+    function updateChronoFieldDisplay() {
+      const chronoFieldset = document.getElementById("chrono_field");
+      if (!chronoFieldset) return;
+
+      const bonusSeconds = getResearchSecondsCF();
+
+      chronoFieldset.querySelectorAll("label").forEach((label) => {
+        const prop = label.querySelector("span")?.textContent;
+        if (prop !== "duration") return;
+
+        const selects = label.querySelectorAll("select");
+        selects.forEach((sel) => {
+          Array.from(sel.options).forEach((opt) => {
+            const baseRaw = opt.dataset.base ?? opt.textContent.split(" ")[0];
+            if (!baseRaw) return;
+
+            const baseNum = parseFloat(String(baseRaw).replace("s", "")) || 0;
+            const updated = baseNum + bonusSeconds;
+
+            opt.textContent = `${updated}s (${
+              opt.dataset.stones || "0"
+            } Stones)`;
           });
         });
       });
