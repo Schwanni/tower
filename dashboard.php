@@ -27,12 +27,18 @@ if (!isset($_SESSION['userId'])) {
                 <li><a href="#poison_swamp">Poisen Swamp</a></li>
                 <li><a href="#smart_missiles">Smart Missiles</a></li>
                 <li><a href="#spotlight">SPOTLIGHT</a></li>
+                <!--
+                <li><button class="overviewButton" id="overview">overview</button></li> 
+                -->
                 <button id="save-btn" class="save-btn">Save</button>
             </ul>
         </div>
     </nav>
     <main>
-        <div id="weapon-container">
+        <div id="weapon-container" class="weapon-container">
+            <!-- Die Waffen werden hier per JS dynamisch eingefügt -->
+        </div>
+        <div id="overview-container" class="overview-container hidden">
             <!-- Die Waffen werden hier per JS dynamisch eingefügt -->
         </div>
     </main>
@@ -43,6 +49,7 @@ if (!isset($_SESSION['userId'])) {
 
     <!-- Logout Button -->
     <button id="logout-btn" class="logout-btn">Logout</button>
+    <button id="overview-btn" class="overview-btn">Overview</button>
 </footer>
 <script src="uw.js"></script>
 </body>

@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const allData = await (await fetch("get_uw.php")).json();
     const userData = await (await fetch("get_user_uw.php")).json();
     let StoneCost = "";
+
     const order = [
       "bonus",
       "research_multiplier",
@@ -32,12 +33,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const container = document.getElementById("weapon-container");
     container.innerHTML = "";
 
+    const overview = document.getElementById("overview-container");
+    overview.innerHTML = "";
+
     // Alle Waffen
     const weapons = [...new Set(allData.map((d) => d.weapon))].sort(
       (a, b) => uwOrder.indexOf(a) - uwOrder.indexOf(b)
     );
 
-    // Research-Level für Golden Tower (initial aus Nutzerdaten)
+    // Research-Level für Golden Tower und Chrono Field (initial aus Nutzerdaten)
     let researchDurationLevel_GT = 0;
     let researchMultiplierLevel = 0;
     let researchDurationLevel_CF = 0;
@@ -261,6 +265,135 @@ document.addEventListener("DOMContentLoaded", async () => {
       container.appendChild(fieldset);
     });
 
+    // auflistung für overview
+
+    weapons.forEach((weapon) => {
+      const fieldset = document.createElement("fieldset");
+      const legend = document.createElement("legend");
+      legend.textContent = weapon.replace(/_/g, " ").toUpperCase();
+      fieldset.setAttribute("id", weapon);
+      fieldset.appendChild(legend);
+
+      const properties = [
+        ...new Set(
+          allData
+            .filter((d) => d.weapon === weapon && d.property !== "0")
+            .map((d) => d.property)
+        ),
+      ].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+
+      properties.forEach((prop) => {
+        const label = document.createElement("label");
+        const span = document.createElement("span");
+        const displayNames = {
+          research_multiplier: "Bonus Lab:",
+          research_duration: "Time Lab:",
+        };
+        span.textContent = displayNames[prop] || prop;
+        span.dataset.prop = prop;
+        label.appendChild(span);
+
+        // === Research Properties (nur 1 Dropdown) ===
+        const isResearch =
+          prop === "research_multiplier" || prop === "research_duration";
+
+        if (isResearch) {
+          const selectSingle = document.createElement("select");
+          selectSingle.classList.add("current");
+
+          allData
+            .filter((d) => d.weapon === weapon && d.property === prop)
+            .forEach((d) => {
+              const opt = document.createElement("option");
+              opt.value = d.level;
+              opt.textContent = `${d.value}`;
+              selectSingle.appendChild(opt);
+            });
+
+          const userValue = userData.find(
+            (u) => u.weapon === weapon && u.property === prop
+          );
+          if (userValue) selectSingle.value = userValue.level;
+
+          // Speichern der Research-Level zur Live-Aktualisierung
+          if (weapon === "golden_tower" && prop === "research_duration") {
+            researchDurationLevel = parseInt(selectSingle.value);
+            selectSingle.addEventListener("change", () => {
+              researchDurationLevel = parseInt(selectSingle.value);
+              updateGoldenTowerDisplay();
+            });
+          }
+
+          if (weapon === "golden_tower" && prop === "research_multiplier") {
+            researchMultiplierLevel = parseInt(selectSingle.value);
+            selectSingle.addEventListener("change", () => {
+              researchMultiplierLevel = parseInt(selectSingle.value);
+              updateGoldenTowerDisplay();
+            });
+          }
+
+          if (weapon === "chrono_field" && prop === "research_duration") {
+            researchDurationLevel_CF = parseInt(selectSingle.value);
+            selectSingle.addEventListener("change", () => {
+              researchDurationLevel_CF = parseInt(selectSingle.value);
+              updateChronoFieldDisplay();
+            });
+          }
+
+          label.appendChild(selectSingle);
+          fieldset.appendChild(label);
+          return;
+        }
+
+        // === Normale Properties (2 Dropdowns) ===
+        const selectCurrent = document.createElement("select");
+        selectCurrent.classList.add("current");
+        const selectTarget = document.createElement("select");
+        selectTarget.classList.add("target");
+
+        allData
+          .filter((d) => d.weapon === weapon && d.property === prop)
+          .forEach((d) => {
+            // Speichere den unveränderten Basis-Text (wie "38s" oder "1.50x")
+            const baseText = d.value; // z.B. "38s" oder "1.50x"
+            const stones = d.stones;
+
+            const optCurrent = document.createElement("option");
+            const optTarget = document.createElement("option");
+
+            optCurrent.value = d.level;
+            optTarget.value = d.level;
+
+            // setze den sichtbaren Text **ohne Research** (wir passen später dynamisch an)
+            optCurrent.textContent = `${baseText}`;
+
+            // sichere die Basiswerte, damit updateGoldenTowerDisplay immer darauf zurückgreift
+            optCurrent.dataset.base = baseText;
+            optCurrent.dataset.stones = stones;
+            optTarget.dataset.base = baseText;
+            optTarget.dataset.stones = stones;
+
+            selectCurrent.appendChild(optCurrent);
+            selectTarget.appendChild(optTarget);
+          });
+
+        const userValue = userData.find(
+          (u) => u.weapon === weapon && u.property === prop
+        );
+        if (userValue) {
+          selectCurrent.value = userValue.level;
+          selectTarget.value = userValue.target_level || userValue.level;
+          StoneCost = userValue.stones;
+        }
+
+        label.appendChild(selectCurrent);
+
+        fieldset.appendChild(label);
+      });
+
+      overview.appendChild(fieldset);
+    });
+
     // nach dem Aufbau der UI einmal initial anwenden
     updateGoldenTowerDisplay();
     updateChronoFieldDisplay();
@@ -459,3 +592,13 @@ function calculateStones(data, weapon, prop, currentLevel, targetLevel) {
     });
   return total;
 }
+
+//toggle für overview
+
+const overviewBtn = document.getElementById("overview-btn");
+overviewBtn.addEventListener("click", () => {
+  const overview = document.getElementById("overview-container");
+  const container = document.getElementById("weapon-container");
+  if (overview.classList.toggle("hidden"));
+  if (container.classList.toggle("hidden"));
+});
